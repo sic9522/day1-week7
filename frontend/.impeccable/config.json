@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-09-14T14:38:17.398Z",
+        "reason": "Sidebar hover-expand (.bank-sidebar width, .sidebar-label max-width): element is position:absolute and out of flow, so the animated width doesn't cascade reflow to siblings (.bank-main uses a static margin-left, not tied to sidebar width) - only a handful of nav rows reflow internally. Discrete hover interaction, not scroll/high-frequency. A transform/opacity-only rewrite would need a duplicated flyout or counter-scale trick, not worth the complexity for this contained case."
+      }
+    ]
+  }
+}

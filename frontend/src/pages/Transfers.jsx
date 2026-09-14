@@ -122,13 +122,13 @@ function TransfersContent({ user }) {
   }
 
   return (
-    <div className="bank-content transfers-page">
-      <div className="transfers-header">
+    <div className="bank-content page-container">
+      <div className="page-header">
         <div>
-          <h2 className="transfers-header-title">I tuoi bonifici</h2>
-          <p className="transfers-header-sub">Crea, invia e monitora i tuoi bonifici in tempo reale.</p>
+          <h2 className="page-header-title">I tuoi bonifici</h2>
+          <p className="page-header-sub">Crea, invia e monitora i tuoi bonifici in tempo reale.</p>
         </div>
-        <Button type="button" className="btn-primary transfers-new-btn" onClick={openModal}>
+        <Button type="button" className="btn-primary page-header-btn" onClick={openModal}>
           <PlusIcon /> Nuovo bonifico
         </Button>
       </div>

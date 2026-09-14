@@ -6,15 +6,15 @@ import { EyeIcon, EyeOffIcon } from './icons'
 
 const NAV_ITEMS = [
   { key: 'dashboard', label: 'Dashboard', icon: GridIcon, to: '/banca' },
-  { key: 'conti', label: 'Conti', icon: ListIcon, to: null },
+  { key: 'conti', label: 'Conti', icon: ListIcon, to: '/banca/conti' },
   { key: 'bonifici', label: 'Bonifici', icon: SwapIcon, to: '/banca/bonifici' },
-  { key: 'carte', label: 'Carte', icon: CardIcon, to: null },
-  { key: 'impostazioni', label: 'Impostazioni', icon: SlidersIcon, to: null },
+  { key: 'carte', label: 'Carte', icon: CardIcon, to: '/banca/carte' },
+  { key: 'impostazioni', label: 'Impostazioni', icon: SlidersIcon, to: '/banca/impostazioni' },
 ]
 
 function GridIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <rect x="3" y="3" width="8" height="8" rx="1.5" />
       <rect x="13" y="3" width="8" height="8" rx="1.5" />
       <rect x="13" y="13" width="8" height="8" rx="1.5" />
@@ -25,7 +25,7 @@ function GridIcon() {
 
 function ListIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <line x1="8" y1="6" x2="21" y2="6" />
       <line x1="8" y1="12" x2="21" y2="12" />
       <line x1="8" y1="18" x2="21" y2="18" />
@@ -38,7 +38,7 @@ function ListIcon() {
 
 function SwapIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M6 7h13l-3.5-3.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M18 17H5l3.5 3.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -47,7 +47,7 @@ function SwapIcon() {
 
 function CardIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <rect x="2" y="5" width="20" height="14" rx="2" />
       <line x1="2" y1="10" x2="22" y2="10" />
     </svg>
@@ -56,7 +56,7 @@ function CardIcon() {
 
 function SlidersIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <line x1="4" y1="21" x2="4" y2="14" />
       <line x1="4" y1="10" x2="4" y2="3" />
       <circle cx="4" cy="12" r="2" />
@@ -72,7 +72,7 @@ function SlidersIcon() {
 
 function LogoutIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M16 17l5-5-5-5" strokeLinecap="round" strokeLinejoin="round" />
       <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" />
@@ -162,7 +162,7 @@ function BankLayout({ title, subtitle, children }) {
       <aside className="bank-sidebar">
         <div className="brand">
           <span className="brand-mark">S</span>
-          <span className="brand-name">SicBank</span>
+          <span className="brand-name sidebar-label">SicBank</span>
         </div>
         <nav className="bank-nav">
           {NAV_ITEMS.map(({ key, label, icon: Icon, to }) => {
@@ -171,21 +171,22 @@ function BankLayout({ title, subtitle, children }) {
             return to ? (
               <Link key={key} to={to} className={className}>
                 <Icon />
-                {label}
+                <span className="sidebar-label">{label}</span>
               </Link>
             ) : (
               <button key={key} type="button" className={className}>
                 <Icon />
-                {label}
+                <span className="sidebar-label">{label}</span>
               </button>
             )
           })}
           <button type="button" className="bank-nav-item" onClick={clearSessionAndGoToLogin}>
             <LogoutIcon />
-            Esci
+            <span className="sidebar-label">Esci</span>
           </button>
         </nav>
       </aside>
+      <div className="sidebar-backdrop" />
 
       <div className="bank-main">
         <header className="bank-topbar">

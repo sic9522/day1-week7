@@ -18,13 +18,6 @@ const CATEGORY_SPENDING = [
   { label: 'Svago', value: 240, color: '#c2478a' },
 ]
 
-const FAKE_TRANSACTIONS = [
-  { id: 1, label: 'Stipendio', amount: 1800, positive: true },
-  { id: 2, label: 'Supermercato', amount: -64.3, positive: false },
-  { id: 3, label: 'Bolletta luce', amount: -48.9, positive: false },
-  { id: 4, label: 'Abbonamento palestra', amount: -35, positive: false },
-]
-
 const FAKE_NEWS = [
   {
     title: 'SicBank lancia i pagamenti istantanei tra conti',
@@ -93,18 +86,6 @@ function Bank() {
                 <CategoryBars data={CATEGORY_SPENDING} />
               </div>
 
-              <div className="bank-card">
-                <h2 className="section-title">Ultimi movimenti</h2>
-                {FAKE_TRANSACTIONS.map((t) => (
-                  <div className="transaction-row" key={t.id}>
-                    <span>{t.label}</span>
-                    <span className={`transaction-amount ${t.positive ? 'positive' : 'negative'}`}>
-                      {t.positive ? '+' : '-'}
-                      {formatAmount(t.amount)} €
-                    </span>
-                  </div>
-                ))}
-              </div>
             </div>
 
             <aside className="bank-content-side">

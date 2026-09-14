@@ -34,6 +34,9 @@ function Register() {
   const [nazione, setNazione] = useState('Italia')
   const [telefono, setTelefono] = useState('')
   const [confirmTelefono, setConfirmTelefono] = useState('')
+  const [consentMarketing, setConsentMarketing] = useState(false)
+  const [consentData, setConsentData] = useState(false)
+  const [consentTerms, setConsentTerms] = useState(false)
   const [code, setCode] = useState('')
 
   const [attempted, setAttempted] = useState(false)
@@ -55,6 +58,8 @@ function Register() {
   const confirmPasswordInvalid = confirmPassword !== password
   const depositInvalid = !(Number(initialDeposit) > 0)
   const confirmTelefonoInvalid = confirmTelefono !== telefono
+  const consentDataInvalid = !consentData
+  const consentTermsInvalid = !consentTerms
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault()
@@ -67,7 +72,9 @@ function Register() {
       passwordInvalid ||
       confirmPasswordInvalid ||
       depositInvalid ||
-      confirmTelefonoInvalid
+      confirmTelefonoInvalid ||
+      consentDataInvalid ||
+      consentTermsInvalid
     ) {
       setAttempted(true)
       return
@@ -370,6 +377,70 @@ function Register() {
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
+
+            <div className="consent-list mb-4">
+              <Form.Check
+                type="checkbox"
+                id="consentMarketing"
+                className="consent-check"
+                checked={consentMarketing}
+                onChange={(e) => setConsentMarketing(e.target.checked)}
+                label={
+                  <span>
+                    <span className="consent-title">
+                      Inserzioni pubblicitarie <span className="accordion-optional">(facoltativo)</span>
+                    </span>
+                    <span className="consent-desc">
+                      Acconsento a ricevere comunicazioni promozionali, offerte e novità sui prodotti
+                      SicBank.
+                    </span>
+                  </span>
+                }
+              />
+              <Form.Check
+                type="checkbox"
+                id="consentData"
+                className="consent-check"
+                checked={consentData}
+                onChange={(e) => setConsentData(e.target.checked)}
+                isInvalid={attempted && consentDataInvalid}
+                feedback="Devi acconsentire al trattamento dei dati personali per registrarti."
+                feedbackType="invalid"
+                label={
+                  <span>
+                    <span className="consent-title">
+                      Trattamento dei dati personali <Req />
+                    </span>
+                    <span className="consent-desc">
+                      Acconsento al trattamento dei miei dati personali secondo l&apos;informativa
+                      sulla privacy, necessario per l&apos;apertura del conto.
+                    </span>
+                  </span>
+                }
+              />
+              <Form.Check
+                type="checkbox"
+                id="consentTerms"
+                className="consent-check"
+                checked={consentTerms}
+                onChange={(e) => setConsentTerms(e.target.checked)}
+                isInvalid={attempted && consentTermsInvalid}
+                feedback="Devi accettare i termini e le condizioni per registrarti."
+                feedbackType="invalid"
+                label={
+                  <span>
+                    <span className="consent-title">
+                      Termini e condizioni <Req />
+                    </span>
+                    <span className="consent-desc">
+                      Dichiaro di aver letto e di accettare i termini e le condizioni del servizio
+                      SicBank.
+                    </span>
+                  </span>
+                }
+              />
+            </div>
+
             <div className="d-flex gap-2">
               <Button
                 type="button"

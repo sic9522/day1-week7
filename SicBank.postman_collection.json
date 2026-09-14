@@ -1,0 +1,390 @@
+{
+  "info": {
+    "name": "SicBank API",
+    "description": "Collection completa per l'API backend di SicBank (Spring Boot). Copre registrazione con codice via email, login, recupero password, gestione utenti e bonifici con conferma OTP.\n\nFlusso consigliato: Register → Confirm Registration (codice ricevuto via email) → Login (salva il token automaticamente) → il resto delle richieste usa già {{token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "myIban", "value": "" },
+    { "key": "nome", "value": "Mario" },
+    { "key": "cognome", "value": "Rossi" },
+    { "key": "username", "value": "mario.rossi" },
+    { "key": "email", "value": "mario.rossi@example.com" },
+    { "key": "password", "value": "password123" },
+    { "key": "registrationCode", "value": "" },
+    { "key": "resetCode", "value": "" },
+    { "key": "newPassword", "value": "nuovaPassword123" },
+    { "key": "destinationIban", "value": "" },
+    { "key": "amount", "value": "50" },
+    { "key": "transferId", "value": "" },
+    { "key": "transferCode", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{nome}}\",\n  \"cognome\": \"{{cognome}}\",\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"balance\": 1000\n}"
+            },
+            "description": "Crea un nuovo utente (non verificato) e invia un codice a 6 cifre via email per confermare la registrazione. Risponde 201 con l'utente creato (il campo id serve per gli endpoint /api/users/{id})."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('userId', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirm Registration",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/confirm?token={{registrationCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "confirm"],
+              "query": [{ "key": "token", "value": "{{registrationCode}}" }]
+            },
+            "description": "Conferma la registrazione con il codice a 6 cifre ricevuto via email (imposta la variabile registrationCode prima di eseguire). Risposta 200 vuota."
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "description": "Il campo 'username' accetta sia lo username che l'email. Richiede che l'utente sia già verificato (Confirm Registration)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('token', pm.response.json().token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] },
+            "description": "Risolve l'utente corrente dal JWT (header Authorization gestito dall'auth di collezione)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('userId', body.id);",
+                  "  pm.collectionVariables.set('myIban', body.iban);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+          }
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{nome}}\",\n  \"cognome\": \"{{cognome}}\",\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"balance\": 1000\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            },
+            "description": "Elimina definitivamente l'account. Risposta 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Resend Registration Code",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/resend-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "resend-code"]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\"\n}" },
+            "description": "Rigenera e reinvia il codice di verifica registrazione. Fallisce se l'utente è già verificato."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "forgot-password"]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\"\n}" },
+            "description": "Invia un codice a 6 cifre via email per il reset password. Risponde sempre 200 anche se l'email non esiste (non rivela l'esistenza dell'account)."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "reset-password"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{resetCode}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}"
+            },
+            "description": "Imposta la variabile resetCode con il codice ricevuto via email (da Forgot Password) prima di eseguire."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transfers",
+      "item": [
+        {
+          "name": "Create Transfer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/transfers", "host": ["{{baseUrl}}"], "path": ["api", "transfers"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceIban\": \"{{myIban}}\",\n  \"destinationIban\": \"{{destinationIban}}\",\n  \"amount\": {{amount}}\n}"
+            },
+            "description": "Crea un bonifico in stato WAITING e invia un codice a 6 cifre via email al mittente. Imposta myIban (il tuo IBAN, da Get Me) e destinationIban prima di eseguire. Fallisce con 'Importo superiore al saldo disponibile' se l'importo supera il saldo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('transferId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirm Transfer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/transfers/{{transferId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transfers", "{{transferId}}", "confirm"]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"{{transferCode}}\"\n}" },
+            "description": "Conferma il bonifico con il codice a 6 cifre ricevuto via email. Se il saldo è nel frattempo insufficiente il risultato diventa REJECT, altrimenti SUCCESS (scala il mittente, accredita il destinatario)."
+          }
+        },
+        {
+          "name": "Reject Transfer",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/transfers/{{transferId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transfers", "{{transferId}}", "reject"]
+            },
+            "description": "Annulla un bonifico in stato WAITING, portandolo a REJECT."
+          }
+        },
+        {
+          "name": "Get My Transfers",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/transfers", "host": ["{{baseUrl}}"], "path": ["api", "transfers"] },
+            "description": "Restituisce solo i bonifici (in entrata e in uscita) dell'utente autenticato."
+          }
+        },
+        {
+          "name": "Get Transfer By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/transfers/{{transferId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transfers", "{{transferId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Transfer",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/transfers/{{transferId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transfers", "{{transferId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin / Debug",
+      "description": "Endpoint di sola ispezione sui token OTP, utili in sviluppo (es. per leggere un codice senza controllare l'inbox email).",
+      "item": [
+        {
+          "name": "Registration Tokens - Get All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/registration-tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registration-tokens"]
+            }
+          }
+        },
+        {
+          "name": "Registration Tokens - Get By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/registration-tokens/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registration-tokens", ":id"],
+              "variable": [{ "key": "id", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Registration Tokens - Delete",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/registration-tokens/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registration-tokens", ":id"],
+              "variable": [{ "key": "id", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Transaction Tokens - Get All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/transaction-tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transaction-tokens"]
+            }
+          }
+        },
+        {
+          "name": "Transaction Tokens - Get By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/transaction-tokens/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transaction-tokens", ":id"],
+              "variable": [{ "key": "id", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Transaction Tokens - Delete",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/transaction-tokens/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transaction-tokens", ":id"],
+              "variable": [{ "key": "id", "value": "" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

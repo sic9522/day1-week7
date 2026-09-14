@@ -806,6 +806,12 @@ a:hover,
 .transaction-row:last-child {
   border-bottom: none;
 }
+.transaction-row--clickable {
+  cursor: pointer;
+}
+.transaction-row--clickable:hover {
+  background: var(--color-hover, rgba(0, 0, 0, 0.03));
+}
 
 .transaction-amount.negative {
   color: var(--color-destructive);

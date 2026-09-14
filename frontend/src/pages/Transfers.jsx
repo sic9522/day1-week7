@@ -37,6 +37,7 @@ function TransfersContent({ user }) {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [attempted, setAttempted] = useState(false)
+  const [detailsTransfer, setDetailsTransfer] = useState(null)
 
   const loadTransfers = () => {
     getTransfers()
@@ -144,7 +145,13 @@ function TransfersContent({ user }) {
             <p className="empty-state">Nessun bonifico in entrata.</p>
           ) : (
             incoming.map((t) => (
-              <TransferRow key={t.id} transfer={t} counterpart={t.sourceIban} positive />
+              <TransferRow
+                key={t.id}
+                transfer={t}
+                counterpart={t.sourceIban}
+                positive
+                onClick={() => setDetailsTransfer(t)}
+              />
             ))
           )}
         </div>
@@ -157,7 +164,12 @@ function TransfersContent({ user }) {
             <p className="empty-state">Nessun bonifico in uscita.</p>
           ) : (
             outgoing.map((t) => (
-              <TransferRow key={t.id} transfer={t} counterpart={t.destinationIban} />
+              <TransferRow
+                key={t.id}
+                transfer={t}
+                counterpart={t.destinationIban}
+                onClick={() => setDetailsTransfer(t)}
+              />
             ))
           )}
         </div>
@@ -285,13 +297,58 @@ function TransfersContent({ user }) {
           )}
         </Modal.Body>
       </Modal>
+
+      <Modal show={!!detailsTransfer} onHide={() => setDetailsTransfer(null)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Dettagli bonifico</Modal.Title>
+        </Modal.Header>
+        {detailsTransfer && (
+          <Modal.Body>
+            {detailsTransfer.sourceIban === user.iban ? (
+              <div className="account-info-row">
+                <span>Mittente</span>
+                <span>
+                  {user.nome} {user.cognome}
+                </span>
+              </div>
+            ) : (
+              <div className="account-info-row">
+                <span>Mittente</span>
+                <span>Non disponibile</span>
+              </div>
+            )}
+            <div className="account-info-row">
+              <span>IBAN mittente</span>
+              <span>{detailsTransfer.sourceIban}</span>
+            </div>
+            <div className="account-info-row">
+              <span>IBAN destinatario</span>
+              <span>{detailsTransfer.destinationIban}</span>
+            </div>
+            <div className="account-info-row">
+              <span>Importo</span>
+              <span>{formatAmount(detailsTransfer.amount)} €</span>
+            </div>
+            <div className="account-info-row">
+              <span>Stato</span>
+              <span className={`status-badge status-badge--${detailsTransfer.result.toLowerCase()}`}>
+                {detailsTransfer.result}
+              </span>
+            </div>
+            <div className="account-info-row">
+              <span>ID transazione</span>
+              <span>{detailsTransfer.id}</span>
+            </div>
+          </Modal.Body>
+        )}
+      </Modal>
     </div>
   )
 }
 
-function TransferRow({ transfer, counterpart, positive }) {
+function TransferRow({ transfer, counterpart, positive, onClick }) {
   return (
-    <div className="transaction-row">
+    <div className="transaction-row transaction-row--clickable" onClick={onClick} role="button" tabIndex={0}>
       <div>
         <div className="transfer-counterpart">{counterpart}</div>
         <span className={`status-badge status-badge--${transfer.result.toLowerCase()}`}>
